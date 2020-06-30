@@ -1,23 +1,37 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet } from 'react-native'
-import { Button, Card, CardSection, Input } from './common'
+import { Button, Card, CardSection, Input, Spinner } from './common'
 import firebase from 'firebase'
 import fireCode from '../../firecode'
 
 class LoginForm extends Component {
-    state = { email: '', password: '', error: '' }
-    UNSAFE_componentWillMount() {
+    state = { email: '', password: '', error: '', loading: false }
+    componentDidMount() {
         firebase.initializeApp(fireCode)
     }
     onButtonPress() {
         const { email, password } = this.state
+        this.setState({ error: '', loading: true })
         firebase.auth().signInWithEmailAndPassword(email, password)
-            .catch(_ => {
-                firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(_ => { console.log('logged in') ; this.setState({ loading: false })})
+            .catch(err => {
+                console.log(err)
+                if (err.code === 'auth/wrong-password') {
+                    this.setState({ error: err.message, loading: false })
+                } else if (err.code === 'auth/too-many-requests') {
+                    this.setState({ error: err.message, loading: false })
+                } else {
+                    firebase.auth().createUserWithEmailAndPassword(email, password)
                     .catch(err => {
-                        this.setState({ error: err.message })
+                        this.setState({ error: err.message, loading: false })
                     })
+                }
             })
+    }
+    renderButton() {
+        return this.state.loading
+            ? <Spinner size='large' />
+            : <Button onPress={this.onButtonPress.bind(this)}>Log in</Button>
     }
     render() {
         return (
@@ -40,7 +54,7 @@ class LoginForm extends Component {
                     />
                 </CardSection>
                 <Text style={styles.errorText}>{this.state.error}</Text>
-                <Button onPress={this.onButtonPress.bind(this)}>Log in</Button>
+                {this.renderButton()}
             </Card>
         )
     }
