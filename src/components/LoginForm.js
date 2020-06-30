@@ -15,7 +15,6 @@ class LoginForm extends Component {
         firebase.auth().signInWithEmailAndPassword(email, password)
             .then(_ => { console.log('logged in') ; this.setState({ loading: false })})
             .catch(err => {
-                console.log(err)
                 if (err.code === 'auth/wrong-password') {
                     this.setState({ error: err.message, loading: false })
                 } else if (err.code === 'auth/too-many-requests') {
@@ -27,6 +26,9 @@ class LoginForm extends Component {
                     })
                 }
             })
+    }
+    onLoginSuccess() {
+
     }
     renderButton() {
         return this.state.loading
