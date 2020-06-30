@@ -13,7 +13,7 @@ class LoginForm extends Component {
         const { email, password } = this.state
         this.setState({ error: '', loading: true })
         firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(_ => { console.log('logged in') ; this.setState({ loading: false })})
+            .then(this.onLoginSuccess.bind(this))
             .catch(err => {
                 if (err.code === 'auth/wrong-password') {
                     this.setState({ error: err.message, loading: false })
@@ -21,14 +21,24 @@ class LoginForm extends Component {
                     this.setState({ error: err.message, loading: false })
                 } else {
                     firebase.auth().createUserWithEmailAndPassword(email, password)
-                    .catch(err => {
-                        this.setState({ error: err.message, loading: false })
-                    })
+                    .then(this.onLoginSuccess.bind(this))
+                    .catch(this.onLoginFail.bind(this))
                 }
             })
     }
     onLoginSuccess() {
-
+        this.setState({
+            email: '',
+            password: '',
+            loading: false,
+            error: ''
+        })
+    }
+    onLoginFail() {
+        this.setState({
+            loading: false,
+            error: 'Login failed'
+        })
     }
     renderButton() {
         return this.state.loading
