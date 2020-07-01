@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { View } from 'react-native'
-import { Header, Button } from './src/components/common'
+import { Header, Button, Spinner } from './src/components/common'
 import LoginForm from './src/components/LoginForm'
 import firebase from 'firebase'
 import fireCode from './firecode'
 
 class App extends Component {
-  state = { signedIn: false }
+  state = { signedIn: null }
   componentDidMount() {
     firebase.initializeApp(fireCode)
     firebase.auth().onAuthStateChanged(user => {
@@ -18,15 +18,15 @@ class App extends Component {
     })
   }
   renderForm() {
-    if (this.state.signedIn) {
-      return (
-        <Button onPress={_ => this.setState({ signedIn: false })}>Sign Out</Button>
-      )
-    } else {
-      return (
-        <LoginForm firebase={firebase}/>
-      )
+    switch (this.state.signedIn) {
+      case true: 
+        return <Button onPress={_ => this.setState({ signedIn: false })}>Sign Out</Button>
+      case false: 
+        return <LoginForm firebase={firebase}/>
+      default:
+        return <Spinner />
     }
+
   }
   render() {
     return (
