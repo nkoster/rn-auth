@@ -20,7 +20,7 @@ class App extends Component {
   renderForm() {
     switch (this.state.signedIn) {
       case true: 
-        return <Button onPress={_ => this.setState({ signedIn: false })}>Sign Out</Button>
+        return <Button onPress={_ => firebase.auth().signOut()}>Sign Out</Button>
       case false: 
         return <LoginForm firebase={firebase}/>
       default:
